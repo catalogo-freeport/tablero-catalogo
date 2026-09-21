@@ -103,6 +103,18 @@
   .ms-cell.n6{color:#6fc1c9;}
   .ms-cell.n7{color:var(--ink);}
   .ms-cell.n8{color:var(--ink-faint);}
+
+  .pac-grid{display:grid;gap:0;background:#000;border-radius:4px;overflow:hidden;}
+  .pac-cell{width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+  .pac-cell.wall{background:#1a2a4a;}
+  .pac-dot{width:3px;height:3px;background:#e8c46a;border-radius:50%;display:block;}
+  .pac-power{width:7px;height:7px;background:#e8c46a;border-radius:50%;display:block;}
+  .pac-man{color:#f5d76e;font-size:11px;line-height:1;}
+  .pac-ghost{font-size:12px;line-height:1;}
+  .pac-controls{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:10px;}
+  .pac-controls > div{display:flex;gap:4px;}
+  .pac-btn{width:32px;height:32px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:16px;cursor:pointer;}
+  .pac-btn:hover{border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -160,8 +172,31 @@
   </div>
 </div>
 
+<div class="ms-modal" id="pacModal">
+  <div class="ms-box">
+    <div class="ms-header">
+      <span>Pac-Man</span>
+      <button class="ms-close" id="pacClose">&#10005;</button>
+    </div>
+    <div class="ms-info">
+      <span id="pacScore">Puntos: 0</span>
+      <button id="pacReset">&#128260;</button>
+      <span id="pacMsg"></span>
+    </div>
+    <div class="pac-grid" id="pacGrid"></div>
+    <div class="pac-controls">
+      <button class="pac-btn" id="pacUp">&#8593;</button>
+      <div>
+        <button class="pac-btn" id="pacLeft">&#8592;</button>
+        <button class="pac-btn" id="pacDown">&#8595;</button>
+        <button class="pac-btn" id="pacRight">&#8594;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const DATA = {"generado": "2026-09-21T15:44:39.715283", "marcas": [{"name": "Calvin", "lots": [{"lote": "1", "carpeta": "CALVIN 1 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 120, "n_modelo": 0, "n_video": 20, "n_referencias": 21, "archivado": false}]}, {"name": "Camper", "lots": [{"lote": "3", "carpeta": "CAMPER 3", "final": false, "modelo": false, "video": false, "n_final": 39, "n_modelo": 1, "n_video": 4, "n_referencias": 10, "archivado": false}, {"lote": "4", "carpeta": "CAMPER 4 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 270, "n_modelo": 92, "n_video": 46, "n_referencias": 47, "archivado": false}, {"lote": "5", "carpeta": "CAMPER 5", "final": false, "modelo": false, "video": false, "n_final": 150, "n_modelo": 0, "n_video": 0, "n_referencias": 30, "archivado": false}, {"lote": "F13", "carpeta": "CAMPER F13 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 120, "n_modelo": 0, "n_video": 20, "n_referencias": 20, "archivado": false}, {"lote": "F14", "carpeta": "CAMPER F14", "final": false, "modelo": false, "video": false, "n_final": 130, "n_modelo": 0, "n_video": 0, "n_referencias": 26, "archivado": false}]}, {"name": "Converse", "lots": [{"lote": "2", "carpeta": "CONVERSE 2 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 39, "n_modelo": 6, "n_video": 5, "n_referencias": 7, "archivado": false}, {"lote": "3", "carpeta": "CONVERSE 3", "final": false, "modelo": false, "video": false, "n_final": 13, "n_modelo": 0, "n_video": 0, "n_referencias": 3, "archivado": false}, {"lote": "F6", "carpeta": "CONVERSE F6", "final": false, "modelo": false, "video": false, "n_final": 63, "n_modelo": 0, "n_video": 0, "n_referencias": 13, "archivado": false}]}, {"name": "Florsheim", "lots": [{"lote": "1", "carpeta": "FLORSHEIM 1", "final": false, "modelo": false, "video": false, "n_final": 3, "n_modelo": 6, "n_video": 3, "n_referencias": 3, "archivado": false}, {"lote": "FLORESHEIM", "carpeta": "FLORESHEIM", "final": false, "modelo": false, "video": false, "n_final": 85, "n_modelo": 0, "n_video": 0, "n_referencias": 16, "archivado": false}, {"lote": "M13", "carpeta": "FLORSHEIM M13", "final": false, "modelo": false, "video": false, "n_final": 26, "n_modelo": 10, "n_video": 5, "n_referencias": 9, "archivado": false}, {"lote": "M14", "carpeta": "FLORESHEIM M14", "final": false, "modelo": false, "video": false, "n_final": 24, "n_modelo": 0, "n_video": 0, "n_referencias": 7, "archivado": false}]}, {"name": "Freeport", "lots": [{"lote": "BAERCHI 1", "carpeta": "FREEPORT BAERCHI 1 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 108, "n_modelo": 18, "n_video": 18, "n_referencias": 18, "archivado": false}, {"lote": "BRY", "carpeta": "FREEPORT BRY (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 54, "n_modelo": 9, "n_video": 9, "n_referencias": 9, "archivado": false}, {"lote": "BRY F4", "carpeta": "FREEPORT BRY F4 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 55, "n_modelo": 10, "n_video": 10, "n_referencias": 11, "archivado": false}, {"lote": "REFLOY 2", "carpeta": "FREEPORT REFLOY 2 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 18, "n_modelo": 3, "n_video": 3, "n_referencias": 3, "archivado": false}, {"lote": "REFLOY 3", "carpeta": "FREEPORT REFLOY 3", "final": false, "modelo": false, "video": false, "n_final": 10, "n_modelo": 0, "n_video": 0, "n_referencias": 2, "archivado": false}, {"lote": "REFLOY F17", "carpeta": "FREEPORT REFLOY F17 (LISTO IA Y MODELO)", "final": true, "modelo": true, "video": true, "n_final": 17, "n_modelo": 4, "n_video": 2, "n_referencias": 3, "archivado": false}, {"lote": "TRAINERS", "carpeta": "FREEPORT TRAINERS", "final": false, "modelo": false, "video": false, "n_final": 15, "n_modelo": 0, "n_video": 0, "n_referencias": 3, "archivado": false}, {"lote": "VEROMOC 2", "carpeta": "FREEPORT VEROMOC 2 (LISTO PARCIAL)", "final": false, "modelo": false, "video": false, "n_final": 64, "n_modelo": 21, "n_video": 9, "n_referencias": 12, "archivado": false}]}, {"name": "New Balance", "lots": [{"lote": "1", "carpeta": "NEW BALANCE 1", "final": false, "modelo": false, "video": false, "n_final": 78, "n_modelo": 14, "n_video": 7, "n_referencias": 12, "archivado": false}, {"lote": "2", "carpeta": "NEW BALANCE 2", "final": false, "modelo": false, "video": false, "n_final": 206, "n_modelo": 36, "n_video": 18, "n_referencias": 33, "archivado": false}, {"lote": "4", "carpeta": "NEW BALANCE 4", "final": false, "modelo": false, "video": false, "n_final": 156, "n_modelo": 0, "n_video": 0, "n_referencias": 15, "archivado": false}, {"lote": "5", "carpeta": "NEW BALANCE 5", "final": false, "modelo": false, "video": false, "n_final": 124, "n_modelo": 0, "n_video": 0, "n_referencias": 22, "archivado": false}, {"lote": "F36", "carpeta": "NEW BALANCE F36", "final": false, "modelo": false, "video": false, "n_final": 57, "n_modelo": 0, "n_video": 0, "n_referencias": 10, "archivado": false}, {"lote": "F37", "carpeta": "NEW BALANCE F37", "final": false, "modelo": false, "video": false, "n_final": 124, "n_modelo": 0, "n_video": 0, "n_referencias": 16, "archivado": false}, {"lote": "F38", "carpeta": "NEW BALANCE F38", "final": false, "modelo": false, "video": false, "n_final": 69, "n_modelo": 0, "n_video": 0, "n_referencias": 12, "archivado": false}, {"lote": "M35", "carpeta": "NEW BALANCE M35", "final": false, "modelo": false, "video": false, "n_final": 50, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}, {"lote": "M37", "carpeta": "NEW BALANCE M37", "final": false, "modelo": false, "video": false, "n_final": 53, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}]}, {"name": "Norda", "lots": [{"lote": "NORDA", "carpeta": "NORDA", "final": false, "modelo": false, "video": false, "n_final": 10, "n_modelo": 0, "n_video": 0, "n_referencias": 2, "archivado": false}]}, {"name": "Nunn Bush", "lots": [{"lote": "NUNN BUSH", "carpeta": "NUNN BUSH", "final": false, "modelo": false, "video": false, "n_final": 33, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}]}, {"name": "Pikolinos", "lots": [{"lote": "1", "carpeta": "PIKOLINOS 1", "final": false, "modelo": false, "video": false, "n_final": 144, "n_modelo": 0, "n_video": 0, "n_referencias": 21, "archivado": false}, {"lote": "2", "carpeta": "PIKOLINOS 2", "final": false, "modelo": false, "video": false, "n_final": 101, "n_modelo": 0, "n_video": 0, "n_referencias": 18, "archivado": false}, {"lote": "3", "carpeta": "PIKOLINOS 3 (LISTO)", "final": true, "modelo": true, "video": true, "n_final": 239, "n_modelo": 35, "n_video": 33, "n_referencias": 34, "archivado": false}, {"lote": "F24", "carpeta": "PIKOLINOS F24", "final": false, "modelo": false, "video": false, "n_final": 298, "n_modelo": 26, "n_video": 13, "n_referencias": 62, "archivado": false}, {"lote": "F25", "carpeta": "PIKOLINOS F25", "final": false, "modelo": false, "video": false, "n_final": 29, "n_modelo": 6, "n_video": 0, "n_referencias": 5, "archivado": false}]}, {"name": "Skechers", "lots": [{"lote": "1", "carpeta": "SKECHERS 1", "final": false, "modelo": false, "video": false, "n_final": 70, "n_modelo": 10, "n_video": 5, "n_referencias": 16, "archivado": false}, {"lote": "2", "carpeta": "SKECHERS 2", "final": false, "modelo": false, "video": false, "n_final": 394, "n_modelo": 0, "n_video": 0, "n_referencias": 68, "archivado": false}, {"lote": "F55", "carpeta": "SKECHERS F55", "final": false, "modelo": false, "video": false, "n_final": 65, "n_modelo": 0, "n_video": 0, "n_referencias": 12, "archivado": false}, {"lote": "F56", "carpeta": "SKECHERS F56", "final": false, "modelo": false, "video": false, "n_final": 44, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}, {"lote": "M45", "carpeta": "SKECHERS M45", "final": false, "modelo": false, "video": false, "n_final": 58, "n_modelo": 0, "n_video": 0, "n_referencias": 10, "archivado": false}, {"lote": "M46", "carpeta": "SKECHERS M46", "final": false, "modelo": false, "video": false, "n_final": 48, "n_modelo": 0, "n_video": 0, "n_referencias": 8, "archivado": false}]}, {"name": "Tommy", "lots": [{"lote": "1", "carpeta": "TOMMY 1", "final": false, "modelo": false, "video": false, "n_final": 99, "n_modelo": 0, "n_video": 0, "n_referencias": 18, "archivado": false}, {"lote": "2", "carpeta": "TOMMY 2", "final": false, "modelo": false, "video": false, "n_final": 35, "n_modelo": 0, "n_video": 0, "n_referencias": 7, "archivado": false}, {"lote": "3", "carpeta": "TOMMY 3", "final": false, "modelo": false, "video": false, "n_final": 182, "n_modelo": 0, "n_video": 0, "n_referencias": 26, "archivado": false}, {"lote": "4", "carpeta": "TOMMY 4", "final": false, "modelo": false, "video": false, "n_final": 69, "n_modelo": 0, "n_video": 0, "n_referencias": 10, "archivado": false}, {"lote": "5", "carpeta": "TOMMY 5", "final": false, "modelo": false, "video": false, "n_final": 103, "n_modelo": 0, "n_video": 0, "n_referencias": 15, "archivado": false}, {"lote": "M28", "carpeta": "TOMMY M28", "final": false, "modelo": false, "video": false, "n_final": 55, "n_modelo": 0, "n_video": 0, "n_referencias": 11, "archivado": false}]}]};
+const DATA = {"generado": "2026-09-21T15:51:17.081279", "marcas": [{"name": "Calvin", "lots": [{"lote": "1", "carpeta": "CALVIN 1 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 120, "n_modelo": 0, "n_video": 20, "n_referencias": 21, "archivado": false}]}, {"name": "Camper", "lots": [{"lote": "3", "carpeta": "CAMPER 3", "final": false, "modelo": false, "video": false, "n_final": 39, "n_modelo": 1, "n_video": 4, "n_referencias": 10, "archivado": false}, {"lote": "4", "carpeta": "CAMPER 4 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 270, "n_modelo": 92, "n_video": 46, "n_referencias": 47, "archivado": false}, {"lote": "5", "carpeta": "CAMPER 5", "final": false, "modelo": false, "video": false, "n_final": 150, "n_modelo": 0, "n_video": 0, "n_referencias": 30, "archivado": false}, {"lote": "F13", "carpeta": "CAMPER F13 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 120, "n_modelo": 0, "n_video": 20, "n_referencias": 20, "archivado": false}, {"lote": "F14", "carpeta": "CAMPER F14", "final": false, "modelo": false, "video": false, "n_final": 130, "n_modelo": 0, "n_video": 0, "n_referencias": 26, "archivado": false}]}, {"name": "Converse", "lots": [{"lote": "2", "carpeta": "CONVERSE 2 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 39, "n_modelo": 6, "n_video": 5, "n_referencias": 7, "archivado": false}, {"lote": "3", "carpeta": "CONVERSE 3", "final": false, "modelo": false, "video": false, "n_final": 13, "n_modelo": 0, "n_video": 0, "n_referencias": 3, "archivado": false}, {"lote": "F6", "carpeta": "CONVERSE F6", "final": false, "modelo": false, "video": false, "n_final": 63, "n_modelo": 0, "n_video": 0, "n_referencias": 13, "archivado": false}]}, {"name": "Florsheim", "lots": [{"lote": "1", "carpeta": "FLORSHEIM 1", "final": false, "modelo": false, "video": false, "n_final": 3, "n_modelo": 6, "n_video": 3, "n_referencias": 3, "archivado": false}, {"lote": "FLORESHEIM", "carpeta": "FLORESHEIM", "final": false, "modelo": false, "video": false, "n_final": 85, "n_modelo": 0, "n_video": 0, "n_referencias": 16, "archivado": false}, {"lote": "M13", "carpeta": "FLORSHEIM M13", "final": false, "modelo": false, "video": false, "n_final": 26, "n_modelo": 10, "n_video": 5, "n_referencias": 9, "archivado": false}, {"lote": "M14", "carpeta": "FLORESHEIM M14", "final": false, "modelo": false, "video": false, "n_final": 24, "n_modelo": 0, "n_video": 0, "n_referencias": 7, "archivado": false}]}, {"name": "Freeport", "lots": [{"lote": "BAERCHI 1", "carpeta": "FREEPORT BAERCHI 1 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 108, "n_modelo": 18, "n_video": 18, "n_referencias": 18, "archivado": false}, {"lote": "BRY", "carpeta": "FREEPORT BRY (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 54, "n_modelo": 9, "n_video": 9, "n_referencias": 9, "archivado": false}, {"lote": "BRY F4", "carpeta": "FREEPORT BRY F4 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 55, "n_modelo": 10, "n_video": 10, "n_referencias": 11, "archivado": false}, {"lote": "REFLOY 2", "carpeta": "FREEPORT REFLOY 2 (LISTO IA)", "final": true, "modelo": true, "video": true, "n_final": 18, "n_modelo": 3, "n_video": 3, "n_referencias": 3, "archivado": false}, {"lote": "REFLOY 3", "carpeta": "FREEPORT REFLOY 3", "final": false, "modelo": false, "video": false, "n_final": 10, "n_modelo": 0, "n_video": 0, "n_referencias": 2, "archivado": false}, {"lote": "REFLOY F17", "carpeta": "FREEPORT REFLOY F17 (LISTO IA Y MODELO)", "final": true, "modelo": true, "video": true, "n_final": 17, "n_modelo": 4, "n_video": 2, "n_referencias": 3, "archivado": false}, {"lote": "TRAINERS", "carpeta": "FREEPORT TRAINERS", "final": false, "modelo": false, "video": false, "n_final": 15, "n_modelo": 0, "n_video": 0, "n_referencias": 3, "archivado": false}, {"lote": "VEROMOC 2", "carpeta": "FREEPORT VEROMOC 2 (LISTO PARCIAL)", "final": false, "modelo": false, "video": false, "n_final": 64, "n_modelo": 21, "n_video": 9, "n_referencias": 12, "archivado": false}]}, {"name": "New Balance", "lots": [{"lote": "1", "carpeta": "NEW BALANCE 1", "final": false, "modelo": false, "video": false, "n_final": 78, "n_modelo": 14, "n_video": 7, "n_referencias": 12, "archivado": false}, {"lote": "2", "carpeta": "NEW BALANCE 2", "final": false, "modelo": false, "video": false, "n_final": 206, "n_modelo": 36, "n_video": 18, "n_referencias": 33, "archivado": false}, {"lote": "4", "carpeta": "NEW BALANCE 4", "final": false, "modelo": false, "video": false, "n_final": 156, "n_modelo": 0, "n_video": 0, "n_referencias": 15, "archivado": false}, {"lote": "5", "carpeta": "NEW BALANCE 5", "final": false, "modelo": false, "video": false, "n_final": 124, "n_modelo": 0, "n_video": 0, "n_referencias": 22, "archivado": false}, {"lote": "F36", "carpeta": "NEW BALANCE F36", "final": false, "modelo": false, "video": false, "n_final": 57, "n_modelo": 0, "n_video": 0, "n_referencias": 10, "archivado": false}, {"lote": "F37", "carpeta": "NEW BALANCE F37", "final": false, "modelo": false, "video": false, "n_final": 124, "n_modelo": 0, "n_video": 0, "n_referencias": 16, "archivado": false}, {"lote": "F38", "carpeta": "NEW BALANCE F38", "final": false, "modelo": false, "video": false, "n_final": 69, "n_modelo": 0, "n_video": 0, "n_referencias": 12, "archivado": false}, {"lote": "M35", "carpeta": "NEW BALANCE M35", "final": false, "modelo": false, "video": false, "n_final": 50, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}, {"lote": "M37", "carpeta": "NEW BALANCE M37", "final": false, "modelo": false, "video": false, "n_final": 53, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}]}, {"name": "Norda", "lots": [{"lote": "NORDA", "carpeta": "NORDA", "final": false, "modelo": false, "video": false, "n_final": 10, "n_modelo": 0, "n_video": 0, "n_referencias": 2, "archivado": false}]}, {"name": "Nunn Bush", "lots": [{"lote": "NUNN BUSH", "carpeta": "NUNN BUSH", "final": false, "modelo": false, "video": false, "n_final": 33, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}]}, {"name": "Pikolinos", "lots": [{"lote": "1", "carpeta": "PIKOLINOS 1", "final": false, "modelo": false, "video": false, "n_final": 144, "n_modelo": 0, "n_video": 0, "n_referencias": 21, "archivado": false}, {"lote": "2", "carpeta": "PIKOLINOS 2", "final": false, "modelo": false, "video": false, "n_final": 101, "n_modelo": 0, "n_video": 0, "n_referencias": 18, "archivado": false}, {"lote": "3", "carpeta": "PIKOLINOS 3 (LISTO)", "final": true, "modelo": true, "video": true, "n_final": 239, "n_modelo": 35, "n_video": 33, "n_referencias": 34, "archivado": false}, {"lote": "F24", "carpeta": "PIKOLINOS F24", "final": false, "modelo": false, "video": false, "n_final": 298, "n_modelo": 26, "n_video": 13, "n_referencias": 62, "archivado": false}, {"lote": "F25", "carpeta": "PIKOLINOS F25", "final": false, "modelo": false, "video": false, "n_final": 29, "n_modelo": 6, "n_video": 0, "n_referencias": 5, "archivado": false}]}, {"name": "Skechers", "lots": [{"lote": "1", "carpeta": "SKECHERS 1", "final": false, "modelo": false, "video": false, "n_final": 70, "n_modelo": 10, "n_video": 5, "n_referencias": 16, "archivado": false}, {"lote": "2", "carpeta": "SKECHERS 2", "final": false, "modelo": false, "video": false, "n_final": 394, "n_modelo": 0, "n_video": 0, "n_referencias": 68, "archivado": false}, {"lote": "F55", "carpeta": "SKECHERS F55", "final": false, "modelo": false, "video": false, "n_final": 65, "n_modelo": 0, "n_video": 0, "n_referencias": 12, "archivado": false}, {"lote": "F56", "carpeta": "SKECHERS F56", "final": false, "modelo": false, "video": false, "n_final": 44, "n_modelo": 0, "n_video": 0, "n_referencias": 9, "archivado": false}, {"lote": "M45", "carpeta": "SKECHERS M45", "final": false, "modelo": false, "video": false, "n_final": 58, "n_modelo": 0, "n_video": 0, "n_referencias": 10, "archivado": false}, {"lote": "M46", "carpeta": "SKECHERS M46", "final": false, "modelo": false, "video": false, "n_final": 48, "n_modelo": 0, "n_video": 0, "n_referencias": 8, "archivado": false}]}, {"name": "Tommy", "lots": [{"lote": "1", "carpeta": "TOMMY 1", "final": false, "modelo": false, "video": false, "n_final": 99, "n_modelo": 0, "n_video": 0, "n_referencias": 18, "archivado": false}, {"lote": "2", "carpeta": "TOMMY 2", "final": false, "modelo": false, "video": false, "n_final": 35, "n_modelo": 0, "n_video": 0, "n_referencias": 7, "archivado": false}, {"lote": "3", "carpeta": "TOMMY 3", "final": false, "modelo": false, "video": false, "n_final": 182, "n_modelo": 0, "n_video": 0, "n_referencias": 26, "archivado": false}, {"lote": "4", "carpeta": "TOMMY 4", "final": false, "modelo": false, "video": false, "n_final": 69, "n_modelo": 0, "n_video": 0, "n_referencias": 10, "archivado": false}, {"lote": "5", "carpeta": "TOMMY 5", "final": false, "modelo": false, "video": false, "n_final": 103, "n_modelo": 0, "n_video": 0, "n_referencias": 15, "archivado": false}, {"lote": "M28", "carpeta": "TOMMY M28", "final": false, "modelo": false, "video": false, "n_final": 55, "n_modelo": 0, "n_video": 0, "n_referencias": 11, "archivado": false}]}]};
 let vista = "general"; // controla que fase se resalta en la lista de marcas/lotes
 let openBrands = new Set();
 let openLots = new Set();
@@ -320,6 +355,156 @@ document.getElementById("globals").addEventListener("click", e=>{
     }
   });
 })();
+
+(function(){
+  let racha2 = 0;
+  document.addEventListener("click", function(e){
+    const c = e.target.closest('.gcard[data-v="modelo"]');
+    if(c){
+      racha2++;
+      if(racha2 > 11){ racha2 = 0; pacAbrir(); }
+    } else {
+      racha2 = 0;
+    }
+  });
+})();
+
+const PAC_ROWS = 13, PAC_COLS = 17;
+const PAC_MAZE_BASE = [
+  "#################",
+  "#.......#.......#",
+  "#.###.#.#.#.###.#",
+  "#.#...#.#.#...#.#",
+  "#.#.###.#.###.#.#",
+  "#...............#",
+  "#.###.#####.###.#",
+  "#.#.......#...#.#",
+  "#.#.#####.#.#.#.#",
+  "#...........#...#",
+  "#.###.#.#.###.#.#",
+  "#.......#.......#",
+  "#################"
+];
+const PAC_POWER_CELLS = [[1,1],[1,15],[11,1],[11,15]];
+
+let pacGrid, pacX, pacY, pacDir, pacNextDir, pacGhosts, pacScore, pacFin, pacPoder, pacPoderHasta, pacIntervalo, pacDots;
+
+function pacAbrir(){
+  document.getElementById("pacModal").classList.add("open");
+  document.addEventListener("keydown", pacTecla);
+  pacIniciar();
+}
+function pacCerrar(){
+  clearInterval(pacIntervalo);
+  document.getElementById("pacModal").classList.remove("open");
+  document.removeEventListener("keydown", pacTecla);
+}
+document.getElementById("pacClose").addEventListener("click", pacCerrar);
+document.getElementById("pacModal").addEventListener("click", e=>{
+  if(e.target.id === "pacModal") pacCerrar();
+});
+document.getElementById("pacReset").addEventListener("click", pacIniciar);
+document.getElementById("pacUp").addEventListener("click", ()=>pacMover(0,-1));
+document.getElementById("pacDown").addEventListener("click", ()=>pacMover(0,1));
+document.getElementById("pacLeft").addEventListener("click", ()=>pacMover(-1,0));
+document.getElementById("pacRight").addEventListener("click", ()=>pacMover(1,0));
+
+function pacTecla(e){
+  const map = {ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0}};
+  if(map[e.key]){ e.preventDefault(); pacNextDir = map[e.key]; }
+}
+function pacMover(dx,dy){ pacNextDir = {x:dx,y:dy}; }
+
+function pacLibre(x,y){
+  if(y<0||y>=PAC_ROWS) return false;
+  const xx = (x+PAC_COLS)%PAC_COLS;
+  return pacGrid[y][xx] !== "#";
+}
+
+function pacIniciar(){
+  clearInterval(pacIntervalo);
+  pacGrid = PAC_MAZE_BASE.map(row=>row.split(""));
+  pacDots = 0;
+  for(let y=0;y<PAC_ROWS;y++) for(let x=0;x<PAC_COLS;x++) if(pacGrid[y][x]===".") pacDots++;
+  PAC_POWER_CELLS.forEach(([y,x])=>{ pacGrid[y][x]="o"; });
+  pacX=8; pacY=9; pacDir={x:0,y:0}; pacNextDir={x:0,y:0};
+  pacGhosts=[
+    {x:7,y:5,color:"#e05a5a"},
+    {x:8,y:5,color:"#e08ac9"},
+    {x:9,y:5,color:"#6fc1c9"}
+  ];
+  pacScore=0; pacFin=false; pacPoder=false; pacPoderHasta=0;
+  document.getElementById("pacScore").textContent="Puntos: 0";
+  document.getElementById("pacMsg").textContent="";
+  pacPintar();
+  pacIntervalo = setInterval(pacTick, 220);
+}
+
+function pacTick(){
+  if(pacFin) return;
+  if(pacLibre(pacX+pacNextDir.x, pacY+pacNextDir.y)){ pacDir = pacNextDir; }
+  if(pacLibre(pacX+pacDir.x, pacY+pacDir.y)){
+    pacX = (pacX+pacDir.x+PAC_COLS)%PAC_COLS;
+    pacY = pacY+pacDir.y;
+  }
+  const cell = pacGrid[pacY][pacX];
+  if(cell==="."){ pacGrid[pacY][pacX]=" "; pacScore+=10; pacDots--; }
+  else if(cell==="o"){ pacGrid[pacY][pacX]=" "; pacScore+=50; pacDots--; pacPoder=true; pacPoderHasta=Date.now()+6000; }
+  if(pacPoder && Date.now()>pacPoderHasta) pacPoder=false;
+
+  pacGhosts.forEach(g=>{
+    const dirs=[{x:0,y:-1},{x:0,y:1},{x:-1,y:0},{x:1,y:0}].filter(d=>pacLibre(g.x+d.x,g.y+d.y));
+    if(dirs.length){
+      const d = dirs[Math.floor(Math.random()*dirs.length)];
+      g.x = (g.x+d.x+PAC_COLS)%PAC_COLS;
+      g.y = g.y+d.y;
+    }
+  });
+
+  pacGhosts.forEach(g=>{
+    if(g.x===pacX && g.y===pacY){
+      if(pacPoder){ g.x=8; g.y=5; pacScore+=200; }
+      else if(!pacFin){
+        pacFin=true;
+        document.getElementById("pacMsg").textContent="Perdiste — puntos: "+pacScore;
+        clearInterval(pacIntervalo);
+      }
+    }
+  });
+
+  if(pacDots<=0 && !pacFin){
+    pacFin=true;
+    document.getElementById("pacMsg").textContent="Ganaste! puntos: "+pacScore;
+    clearInterval(pacIntervalo);
+  }
+
+  document.getElementById("pacScore").textContent="Puntos: "+pacScore;
+  pacPintar();
+}
+
+function pacPintar(){
+  const el = document.getElementById("pacGrid");
+  el.innerHTML="";
+  el.style.gridTemplateColumns = "repeat("+PAC_COLS+",16px)";
+  el.style.gridTemplateRows = "repeat("+PAC_ROWS+",16px)";
+  for(let y=0;y<PAC_ROWS;y++){
+    for(let x=0;x<PAC_COLS;x++){
+      const d = document.createElement("div");
+      d.className="pac-cell";
+      const c = pacGrid[y][x];
+      if(c==="#") d.classList.add("wall");
+      else if(c===".") d.innerHTML='<span class="pac-dot"></span>';
+      else if(c==="o") d.innerHTML='<span class="pac-power"></span>';
+      const g = pacGhosts.find(gg=>gg.x===x&&gg.y===y);
+      if(x===pacX && y===pacY){
+        d.innerHTML = '<span class="pac-man">&#9679;</span>';
+      } else if(g){
+        d.innerHTML = '<span class="pac-ghost" style="color:'+(pacPoder?"#7c9cc4":g.color)+'">&#128123;</span>';
+      }
+      el.appendChild(d);
+    }
+  }
+}
 
 const MS_N = 9, MS_MINAS = 10;
 let msTablero, msRev, msBand, msFin, msIntervalo, msSeg;
